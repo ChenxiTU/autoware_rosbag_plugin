@@ -1,0 +1,9 @@
+<library path="lib/libautoware_rosbag_plugin">
+  <class name="Autoware_Rosbag_Plugin"
+         type="Autoware_Rosbag_Plugin"
+         base_class_type="rviz::Panel">
+    <description>
+      plugin to play/record rosbag file in Rviz
+    </description>
+  </class>
+</library>
