@@ -30,6 +30,7 @@ using namespace std;
 const QString Autoware_Rosbag_Plugin::DEFAULT_SAVE_PATH = "/home/user/";
 const int     Autoware_Rosbag_Plugin::TIMER_FREQ     = 1000;
 
+int test_count = 1;
 
 
 
@@ -40,16 +41,16 @@ Autoware_Rosbag_Plugin::Autoware_Rosbag_Plugin(QWidget *parent) :
   record_filepath_.clear();
   record_filename_.clear();
 
-//  const char* DEFAULT_RECORD_TOPICS[] = {
-//      "/velodyne_packets",
-//      "/velodyne_points",
-//  };
+  const char* DEFAULT_RECORD_TOPICS[] = {
+      "/velodyne_packets",
+      "/velodyne_points",
+  };
 
-//  record_topics_.clear();
-//  for(size_t i=0; i< (sizeof(DEFAULT_RECORD_TOPICS)/sizeof(const char*)); i++)
-//  {
-//    record_topics_.push_back( DEFAULT_RECORD_TOPICS[i] );
-//  }
+  record_topics_.clear();
+  for(size_t i=0; i< (sizeof(DEFAULT_RECORD_TOPICS)/sizeof(const char*)); i++)
+  {
+    record_topics_.push_back( DEFAULT_RECORD_TOPICS[i] );
+  }
 
 
   ui->setupUi(this);
@@ -333,4 +334,63 @@ void Autoware_Rosbag_Plugin::timeShow()
   else
     record_time_duration_ = ros::Time::now() - ros::Time::now();
   updateRecordTime(record_time_duration_);
+}
+
+void Autoware_Rosbag_Plugin::on_botton_topic_refresh_clicked()
+{
+//  QPushButton *dynamic1= new QPushButton(ui->button_record_save);
+
+  ros::master::V_TopicInfo master_topics;
+  ros::master::getTopics(master_topics);
+
+  for (ros::master::V_TopicInfo::iterator it = master_topics.begin() ; it != master_topics.end(); it++) {
+    const ros::master::TopicInfo& info = *it;
+    std::cout << "topic_" << it - master_topics.begin() << ": " << info.name << std::endl;
+  }
+
+  QLayout* layout = ui->widget_topic->layout ();
+  if (layout != 0)
+  {
+    QLayoutItem *item;
+    while ((item = layout->takeAt(0)) != 0)
+    {
+      delete item->widget();
+      delete item;
+    }
+    delete layout;
+  }
+
+  QVBoxLayout *lay = new QVBoxLayout(this);
+  if (test_count % 3 == 0)
+  {
+    QCheckBox *dynamic = new QCheckBox("This is a check box");
+    dynamic->setChecked (true);
+    lay->addWidget(dynamic);
+  }
+  else
+//    for (int i = 0; i < record_topics_.size(); i++)
+
+    for (std::vector<std::string>::iterator it = record_topics_.begin(); it != record_topics_.end(); it++)
+    {
+      QCheckBox *dynamic = new QCheckBox(QString::fromStdString(*it));
+      dynamic->setChecked (true);
+      lay->addWidget(dynamic);
+    }
+
+
+
+  ui->widget_topic->setLayout(lay);
+//  ui->widget_topic->update();
+  test_count++;
+
+//  dynamic1.setText("Test1");
+
+
+
+//  ui->gridLayout->addItem(dynamic1);
+
+//  QVBoxLayout layout;
+//  layout.addWidget(&dynamic1);
+
+
 }

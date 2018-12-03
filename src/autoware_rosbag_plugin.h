@@ -65,6 +65,7 @@ protected Q_SLOTS:
     void on_button_record_start_clicked();
     void on_button_record_stop_clicked();
     void timeShow();
+    void on_botton_topic_refresh_clicked();
 
 private:
 
