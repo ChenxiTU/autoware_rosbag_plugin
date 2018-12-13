@@ -1,3 +1,9 @@
+/*
+ rviz Rosbag recording plugin for opensource autonomous driving platform Autoware
+
+ Chenxi TU
+*/
+
 #include "autoware_rosbag_plugin.h"
 #include "ui_autoware_rosbag_plugin.h"
 #include <QTimer>
@@ -25,14 +31,9 @@
 
 
 using namespace std;
-//using namespace rosbag_control;
 
 const QString Autoware_Rosbag_Plugin::DEFAULT_SAVE_PATH = "/home/user/";
 const int     Autoware_Rosbag_Plugin::TIMER_FREQ     = 1000;
-
-//int test_count = 1;
-
-
 
 Autoware_Rosbag_Plugin::Autoware_Rosbag_Plugin(QWidget *parent) :
     rviz::Panel(parent),
@@ -40,18 +41,6 @@ Autoware_Rosbag_Plugin::Autoware_Rosbag_Plugin(QWidget *parent) :
 {
   record_filepath_.clear();
   record_filename_.clear();
-
-//  const char* DEFAULT_RECORD_TOPICS[] = {
-//      "/velodyne_packets",
-//      "/velodyne_points",
-//  };
-
-//  record_topics_.clear();
-//  for(size_t i=0; i< (sizeof(DEFAULT_RECORD_TOPICS)/sizeof(const char*)); i++)
-//  {
-//    record_topics_.push_back( DEFAULT_RECORD_TOPICS[i] );
-//  }
-
 
   ui->setupUi(this);
   ui_timer_ = new QTimer();
@@ -77,7 +66,6 @@ void Autoware_Rosbag_Plugin::on_edit_record_filename_textChanged(const QString &
 {
   if( !arg1.isEmpty() )
   {
-    /* set filename, activate record start */
     record_filename_ = arg1.toStdString();
     ui->button_record_start->setEnabled(true);
   }
@@ -86,7 +74,6 @@ void Autoware_Rosbag_Plugin::on_edit_record_filename_textChanged(const QString &
 
 void Autoware_Rosbag_Plugin::on_button_record_save_clicked()
 {
-
   /* open dialog */
   QString pathInfo =
       QFileDialog::getSaveFileName(
@@ -122,46 +109,22 @@ void Autoware_Rosbag_Plugin::on_button_record_save_clicked()
     ui->edit_record_filename->setText(filename);
 
   }
-
 }
 
 void Autoware_Rosbag_Plugin::on_button_record_start_clicked()
 {
-//  Rosbag_Control_Manager::RequestInfo reqInfo;
   RecordParam recoParam;
-////////////////////////////////////////////////////
-//  reqInfo.req_type = Rosbag_Control_Manager::ROSBAG_REQ_RECORD;
-//  /* Set Split Param*/
-//  if(record_duration_secs_ != 0)
-//  {
-//    recInfo.max_duration = record_duration_secs_;
-//  }
 
-//  reqInfo.param.recInfo = &recInfo;
-//////////////////////////////////////////////////
-
-//  /* Set Record Topics Param */
+  /* Set topics parameter from checkboxes*/
   record_topics_.clear();
 
-  QList<QCheckBox *> list_checkboxes = ui->widget_topic->findChildren<QCheckBox *>();
+  QList<QCheckBox *> list_checkboxes = ui->scrollAreaWidgetContents->findChildren<QCheckBox *>();
   for (int i = 0; i < list_checkboxes.size(); ++i) {
       if (list_checkboxes.at(i)->isChecked())
       {
-//        std::cout << list_checkboxes.at(i)->text().toStdString() << std::endl;
         record_topics_.push_back(list_checkboxes.at(i)->text().toStdString());
       }
   }
-
-
-
-//  if( ui->checkBox_1->isChecked() )
-//    record_topics_.push_back("/velodyne_packets");
-//  if( ui->checkBox_2->isChecked() )
-//    record_topics_.push_back("/velodyne_points");
-//  if( ui->checkBox_3->isChecked() )
-//    record_topics_.push_back("/image_raw");
-
-
 
   std::vector<std::string>::iterator ite = record_topics_.begin();
   while( ite != record_topics_.end() )
@@ -170,42 +133,22 @@ void Autoware_Rosbag_Plugin::on_button_record_start_clicked()
     ite++;
   }
 
-  /* Set Filename Param */
+  /* Set filename parameter */
   recoParam.filename = record_filepath_ + record_filename_;
 
-  /* Start Record Request */
+  /* Start record */
   recordReq(recoParam);
 
   /*Start Timer*/
   ui_timer_->start();
 
-
-///////////////////////////////////////////
   ui->button_record_save->setDisabled(true);
   ui->button_record_stop->setEnabled(true);
   ui->button_record_start->setDisabled(true);
-//  ui->grp_play->setDisabled(true);
-//  ui->btn_recordStart->setDisabled(true);
-//  ui->btn_saveFile->setDisabled(true);
-//  ui->chkbx_split->setDisabled(true);
-//  setSplitGroupState();
-
-//  ui->chkbx_timestamp->setDisabled(true);
-//  ui->btn_recordStop->setEnabled(true);
-///////////////////////////////////////////
-
-
-  /* Start Timer */
-//  setTimerState(true);
-
-//  ROS_INFO("%s L.%d - Enetered", __FUNCTION__, __LINE__);
-//  int ret = ROSBAG_RET_NG;
-
 }
 
 int Autoware_Rosbag_Plugin::recordReq( RecordParam &recoParam )
 {
-//  ROS_INFO("%s L.%d - Enetered", __FUNCTION__, __LINE__);
   recorder_opts_.reset( new rosbag_control::RecorderOptions() );
   if (recoParam.filename.empty())
   {
@@ -214,29 +157,28 @@ int Autoware_Rosbag_Plugin::recordReq( RecordParam &recoParam )
   recorder_opts_->prefix = recoParam.filename;
   recorder_opts_->append_date = false;
 
-  /* Set Default Options */
+  /* Default options */
   recorder_opts_->buffer_size   = 1048576 * 256;
   recorder_opts_->chunk_size    = 1024 * 768;
   recorder_opts_->min_space     = 1 * 1073741824ull;
   recorder_opts_->min_space_str = "1G";
   recorder_opts_->time_publish  = false;
 
-  /* Set Max Duration Sec */
+  /* Set max duration Sec */
   if( recoParam.max_duration != 0 )
   {
     recorder_opts_->split = true;
     recorder_opts_->max_duration = ros::Duration(recoParam.max_duration);
   }
 
-  /* Set record topics */
+  /* No specified topics then record all */
   if( recoParam.topics.empty() )
   {
-//    ROS_INFO("%s L.%d - Set all topic record option", __FUNCTION__, __LINE__, ret);
     recorder_opts_->record_all = true;
   }
   else
   {
-    /* Record Topics Setting */
+    /* Give specified topics to request */
     std::vector<std::string>::iterator ite = recoParam.topics.begin();
     while(ite < recoParam.topics.end() )
     {
@@ -271,19 +213,13 @@ int Autoware_Rosbag_Plugin::recordReq( RecordParam &recoParam )
     ROS_INFO("%s L.%d - [%d] %s", __FUNCTION__, __LINE__, i, recorder_opts_->topics.at(i).c_str() );
   }
 
-
   doRecord( *recorder_opts_ );
 
-
-//  ROS_INFO("%s L.%d - Returned [%d]", __FUNCTION__, __LINE__, ret);
   return 0;
 }
 
 int Autoware_Rosbag_Plugin::doRecord( rosbag_control::RecorderOptions &opt )
 {
-  ROS_INFO("%s L.%d - Enetered", __FUNCTION__, __LINE__);
-//  int ret = ROSBAG_RET_NG;
-
   recorder_.reset(new rosbag_control::Recorder(opt) );
   record_status = 1;
 
@@ -291,9 +227,7 @@ int Autoware_Rosbag_Plugin::doRecord( rosbag_control::RecorderOptions &opt )
 
   if( recorder_->start() == 0 )
   {
-//    setState( ROSBAG_STATE_RECORD );
-//    ret = ROSBAG_RET_OK;
-//   ROS_INFO("Error???");
+    ROS_INFO("Error");
   }
   else
   {
@@ -301,14 +235,11 @@ int Autoware_Rosbag_Plugin::doRecord( rosbag_control::RecorderOptions &opt )
     recorder_opts_.reset();
   }
 
-//  ROS_INFO("%s L.%d - Return [%d] ", __FUNCTION__, __LINE__, ret);
   return 0;
 }
 
 void Autoware_Rosbag_Plugin::on_button_record_stop_clicked()
 {
-  ROS_INFO("%s L.%d - Enetered", __FUNCTION__, __LINE__);
-
   recorder_->stop();
   recorder_.reset();
   recorder_opts_.reset();
@@ -318,12 +249,8 @@ void Autoware_Rosbag_Plugin::on_button_record_stop_clicked()
   ui->button_record_stop->setDisabled(true);
   record_status = 0;
 
-//  record_current_time_ = 0;
   ros::Duration record_time_reset_ = ros::Duration(0);
   Autoware_Rosbag_Plugin::updateRecordTime(record_time_reset_);
-
-  ROS_INFO("%s L.%d - Returned", __FUNCTION__, __LINE__);
-
 }
 
 void Autoware_Rosbag_Plugin::updateRecordTime(ros::Duration record_time_visual)
@@ -336,8 +263,6 @@ void Autoware_Rosbag_Plugin::updateRecordTime(ros::Duration record_time_visual)
   QString buf = curTime.toString(fmt);
 
   ui->label_recTime->setText(buf);
-
-
 }
 
 void Autoware_Rosbag_Plugin::timeShow()
@@ -352,12 +277,12 @@ void Autoware_Rosbag_Plugin::timeShow()
 
 void Autoware_Rosbag_Plugin::on_botton_topic_refresh_clicked()
 {
-//  QPushButton *dynamic1= new QPushButton(ui->button_record_save);
-
   ros::master::V_TopicInfo master_topics;
   ros::master::getTopics(master_topics);
 
-  QLayout* layout = ui->widget_topic->layout();
+  QLayout* layout = ui->scrollAreaWidgetContents->layout();
+
+  /* Delete previous topic scan result */
   if (layout != 0)
   {
     QLayoutItem *item;
@@ -372,9 +297,9 @@ void Autoware_Rosbag_Plugin::on_botton_topic_refresh_clicked()
   QVBoxLayout *lay = new QVBoxLayout(this);
   int topic_num = 0;
 
+  /* Scan current topics and build checkboxs */
   for (ros::master::V_TopicInfo::iterator it = master_topics.begin() ; it != master_topics.end(); it++) {
     const ros::master::TopicInfo& info = *it;
-//    std::cout << "topic_" << it - master_topics.begin() << ": " << info.name << std::endl;
     QCheckBox *dynamic = new QCheckBox(QString::fromStdString(info.name));
     dynamic->setChecked (true);
     lay->addWidget(dynamic);
@@ -382,48 +307,5 @@ void Autoware_Rosbag_Plugin::on_botton_topic_refresh_clicked()
 
   }
 
-
-//  if (test_count % 3 == 0)
-//  {
-//    QCheckBox *dynamic = new QCheckBox("This is a check box");
-//    dynamic->setChecked (true);
-//    lay->addWidget(dynamic);
-//  }
-//  else
-////    for (int i = 0; i < record_topics_.size(); i++)
-
-//    for (std::vector<std::string>::iterator it = record_topics_.begin(); it != record_topics_.end(); it++)
-//    {
-//      QCheckBox *dynamic = new QCheckBox(QString::fromStdString(*it));
-//      dynamic->setChecked (true);
-//      lay->addWidget(dynamic);
-//    }
-
-
-  ui->widget_topic->resize(311, 25 * topic_num);
-  ui->widget_topic->setLayout(lay);
-
-//  ui->widget_topic->update();
-//  test_count++;
-
-//  dynamic1.setText("Test1");
-
-
-
-//  ui->gridLayout->addItem(dynamic1);
-
-//  QVBoxLayout layout;
-//  layout.addWidget(&dynamic1);
-
-/////////////////////////////////////////////
-//  QHBoxLayout *mainLayout = new QHBoxLayout;
-//  QScrollArea *area = new QScrollArea;
-//  QWidgte *widget = new QWidget;
-
-//  widget->setLayout(flowLayout);
-//  area->setWidget(widget);
-//  mainLayout->addWidget(area);
-//  setLayout(mainLayout);
-
-
+  ui->scrollAreaWidgetContents->setLayout(lay);
 }

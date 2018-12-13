@@ -1,3 +1,9 @@
+/*
+ rviz Rosbag recording plugin for opensource autonomous driving platform Autoware
+
+ Chenxi TU
+*/
+
 #ifndef AUTOWARE_ROSBAG_PLUGIN_H
 #define AUTOWARE_ROSBAG_PLUGIN_H
 
@@ -46,7 +52,7 @@ public:
     typedef struct {
       std::string filename;
       std::vector<std::string> topics;
-      int max_duration;   // Max Record Duration of seconds
+      int max_duration;
     } RecordParam;
 
 protected:
@@ -81,7 +87,6 @@ private:
     bool record_status;
 
     ros::Time record_time_start_;
-//    ros::Time record_time_current_;
 };
 
 #endif

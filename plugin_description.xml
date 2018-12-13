@@ -1,5 +1,5 @@
-<library path="lib/libautoware_rosbag_plugin">
-  <class name="Autoware_Rosbag_Plugin"
+<library path="lib/librosbag_controller">
+  <class name="RosbagController"
          type="Autoware_Rosbag_Plugin"
          base_class_type="rviz::Panel">
     <description>

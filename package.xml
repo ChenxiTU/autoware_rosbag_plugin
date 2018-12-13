@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>autoware_rosbag_plugin</name>
+  <name>rosbag_controller</name>
   <version>0.0.0</version>
-  <description>The autoware_rosbag_plugin package</description>
+  <description>The RosbagController package</description>
 
   <maintainer email="tu.chenxi@g.sp.m.is.nagoya-u.ac.jp">tu</maintainer>
   <license>TODO</license>
