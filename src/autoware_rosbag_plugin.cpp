@@ -3,7 +3,7 @@
 #include <QTimer>
 #include <QFileDialog>
 #include <QSlider>
-
+#include <QCheckBox>
 #include <sstream>
 #include <iostream>
 #include <fstream>
@@ -30,7 +30,7 @@ using namespace std;
 const QString Autoware_Rosbag_Plugin::DEFAULT_SAVE_PATH = "/home/user/";
 const int     Autoware_Rosbag_Plugin::TIMER_FREQ     = 1000;
 
-int test_count = 1;
+//int test_count = 1;
 
 
 
@@ -41,16 +41,16 @@ Autoware_Rosbag_Plugin::Autoware_Rosbag_Plugin(QWidget *parent) :
   record_filepath_.clear();
   record_filename_.clear();
 
-  const char* DEFAULT_RECORD_TOPICS[] = {
-      "/velodyne_packets",
-      "/velodyne_points",
-  };
+//  const char* DEFAULT_RECORD_TOPICS[] = {
+//      "/velodyne_packets",
+//      "/velodyne_points",
+//  };
 
-  record_topics_.clear();
-  for(size_t i=0; i< (sizeof(DEFAULT_RECORD_TOPICS)/sizeof(const char*)); i++)
-  {
-    record_topics_.push_back( DEFAULT_RECORD_TOPICS[i] );
-  }
+//  record_topics_.clear();
+//  for(size_t i=0; i< (sizeof(DEFAULT_RECORD_TOPICS)/sizeof(const char*)); i++)
+//  {
+//    record_topics_.push_back( DEFAULT_RECORD_TOPICS[i] );
+//  }
 
 
   ui->setupUi(this);
@@ -142,12 +142,26 @@ void Autoware_Rosbag_Plugin::on_button_record_start_clicked()
 
 //  /* Set Record Topics Param */
   record_topics_.clear();
-  if( ui->checkBox_1->isChecked() )
-    record_topics_.push_back("/velodyne_packets");
-  if( ui->checkBox_2->isChecked() )
-    record_topics_.push_back("/velodyne_points");
-  if( ui->checkBox_3->isChecked() )
-    record_topics_.push_back("/image_raw");
+
+  QList<QCheckBox *> list_checkboxes = ui->widget_topic->findChildren<QCheckBox *>();
+  for (int i = 0; i < list_checkboxes.size(); ++i) {
+      if (list_checkboxes.at(i)->isChecked())
+      {
+//        std::cout << list_checkboxes.at(i)->text().toStdString() << std::endl;
+        record_topics_.push_back(list_checkboxes.at(i)->text().toStdString());
+      }
+  }
+
+
+
+//  if( ui->checkBox_1->isChecked() )
+//    record_topics_.push_back("/velodyne_packets");
+//  if( ui->checkBox_2->isChecked() )
+//    record_topics_.push_back("/velodyne_points");
+//  if( ui->checkBox_3->isChecked() )
+//    record_topics_.push_back("/image_raw");
+
+
 
   std::vector<std::string>::iterator ite = record_topics_.begin();
   while( ite != record_topics_.end() )
@@ -343,12 +357,7 @@ void Autoware_Rosbag_Plugin::on_botton_topic_refresh_clicked()
   ros::master::V_TopicInfo master_topics;
   ros::master::getTopics(master_topics);
 
-  for (ros::master::V_TopicInfo::iterator it = master_topics.begin() ; it != master_topics.end(); it++) {
-    const ros::master::TopicInfo& info = *it;
-    std::cout << "topic_" << it - master_topics.begin() << ": " << info.name << std::endl;
-  }
-
-  QLayout* layout = ui->widget_topic->layout ();
+  QLayout* layout = ui->widget_topic->layout();
   if (layout != 0)
   {
     QLayoutItem *item;
@@ -361,27 +370,41 @@ void Autoware_Rosbag_Plugin::on_botton_topic_refresh_clicked()
   }
 
   QVBoxLayout *lay = new QVBoxLayout(this);
-  if (test_count % 3 == 0)
-  {
-    QCheckBox *dynamic = new QCheckBox("This is a check box");
+  int topic_num = 0;
+
+  for (ros::master::V_TopicInfo::iterator it = master_topics.begin() ; it != master_topics.end(); it++) {
+    const ros::master::TopicInfo& info = *it;
+//    std::cout << "topic_" << it - master_topics.begin() << ": " << info.name << std::endl;
+    QCheckBox *dynamic = new QCheckBox(QString::fromStdString(info.name));
     dynamic->setChecked (true);
     lay->addWidget(dynamic);
+    topic_num++;
+
   }
-  else
-//    for (int i = 0; i < record_topics_.size(); i++)
-
-    for (std::vector<std::string>::iterator it = record_topics_.begin(); it != record_topics_.end(); it++)
-    {
-      QCheckBox *dynamic = new QCheckBox(QString::fromStdString(*it));
-      dynamic->setChecked (true);
-      lay->addWidget(dynamic);
-    }
 
 
+//  if (test_count % 3 == 0)
+//  {
+//    QCheckBox *dynamic = new QCheckBox("This is a check box");
+//    dynamic->setChecked (true);
+//    lay->addWidget(dynamic);
+//  }
+//  else
+////    for (int i = 0; i < record_topics_.size(); i++)
 
+//    for (std::vector<std::string>::iterator it = record_topics_.begin(); it != record_topics_.end(); it++)
+//    {
+//      QCheckBox *dynamic = new QCheckBox(QString::fromStdString(*it));
+//      dynamic->setChecked (true);
+//      lay->addWidget(dynamic);
+//    }
+
+
+  ui->widget_topic->resize(311, 25 * topic_num);
   ui->widget_topic->setLayout(lay);
+
 //  ui->widget_topic->update();
-  test_count++;
+//  test_count++;
 
 //  dynamic1.setText("Test1");
 
@@ -391,6 +414,16 @@ void Autoware_Rosbag_Plugin::on_botton_topic_refresh_clicked()
 
 //  QVBoxLayout layout;
 //  layout.addWidget(&dynamic1);
+
+/////////////////////////////////////////////
+//  QHBoxLayout *mainLayout = new QHBoxLayout;
+//  QScrollArea *area = new QScrollArea;
+//  QWidgte *widget = new QWidget;
+
+//  widget->setLayout(flowLayout);
+//  area->setWidget(widget);
+//  mainLayout->addWidget(area);
+//  setLayout(mainLayout);
 
 
 }

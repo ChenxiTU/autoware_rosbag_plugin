@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>333</width>
-    <height>622</height>
+    <height>531</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -68,32 +68,6 @@
     <string>00:00:00</string>
    </property>
   </widget>
-  <widget class="QCheckBox" name="checkBox_2">
-   <property name="geometry">
-    <rect>
-     <x>161</x>
-     <y>232</y>
-     <width>134</width>
-     <height>26</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>velodyne_points</string>
-   </property>
-  </widget>
-  <widget class="QCheckBox" name="checkBox_3">
-   <property name="geometry">
-    <rect>
-     <x>11</x>
-     <y>264</y>
-     <width>98</width>
-     <height>26</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>image_raw</string>
-   </property>
-  </widget>
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
@@ -116,24 +90,11 @@
     </item>
    </layout>
   </widget>
-  <widget class="QCheckBox" name="checkBox_1">
-   <property name="geometry">
-    <rect>
-     <x>11</x>
-     <y>232</y>
-     <width>144</width>
-     <height>26</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>velodyne_packets</string>
-   </property>
-  </widget>
   <widget class="QPushButton" name="botton_topic_refresh">
    <property name="geometry">
     <rect>
-     <x>200</x>
-     <y>580</y>
+     <x>10</x>
+     <y>290</y>
      <width>111</width>
      <height>28</height>
     </rect>
@@ -145,10 +106,10 @@
   <widget class="QWidget" name="widget_topic" native="true">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>310</y>
-     <width>271</width>
-     <height>181</height>
+     <x>10</x>
+     <y>330</y>
+     <width>311</width>
+     <height>191</height>
     </rect>
    </property>
   </widget>
