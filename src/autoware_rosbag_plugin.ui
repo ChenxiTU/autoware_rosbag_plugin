@@ -84,7 +84,7 @@
     <item row="0" column="1">
      <widget class="QPushButton" name="button_record_save">
       <property name="text">
-       <string>save</string>
+       <string>Save</string>
       </property>
      </widget>
     </item>
@@ -125,6 +125,28 @@
      </rect>
     </property>
    </widget>
+  </widget>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>190</y>
+     <width>311</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <layout class="QGridLayout" name="gridLayout_2">
+    <item row="0" column="0">
+     <widget class="QLineEdit" name="edit_record_configure"/>
+    </item>
+    <item row="0" column="1">
+     <widget class="QPushButton" name="button_record_configure">
+      <property name="text">
+       <string>Configure File</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>

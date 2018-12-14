@@ -18,6 +18,7 @@
   <build_depend>topic_tools</build_depend>
   <build_depend>xmlrpcpp</build_depend>
   <build_depend>rviz</build_depend>
+  <build_depend>common_rosdeps</build_depend>
   
   <run_depend>boost</run_depend>
   <run_depend>genmsg</run_depend>
@@ -31,6 +32,7 @@
   <run_depend>topic_tools</run_depend>
   <run_depend>xmlrpcpp</run_depend>
   <run_depend>rviz</run_depend>
+  <run_depend>common_rosdeps</run_depend>
   <export>
     <!-- Other tools can request additional information be placed here -->
     <rviz plugin="${prefix}/plugin_description.xml"/>

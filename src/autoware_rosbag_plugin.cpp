@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
+#include <yaml-cpp/yaml.h>
 
 #include <ros/ros.h>
 #include <ros/common.h>
@@ -33,7 +34,10 @@
 using namespace std;
 
 const QString Autoware_Rosbag_Plugin::DEFAULT_SAVE_PATH = "/home/user/";
+const QString Autoware_Rosbag_Plugin::DEFAULT_CONFIGURE_PATH = "/home/user/";
 const int     Autoware_Rosbag_Plugin::TIMER_FREQ     = 1000;
+
+std::vector<string> conf_topics;
 
 Autoware_Rosbag_Plugin::Autoware_Rosbag_Plugin(QWidget *parent) :
     rviz::Panel(parent),
@@ -115,18 +119,27 @@ void Autoware_Rosbag_Plugin::on_button_record_start_clicked()
 {
   RecordParam recoParam;
 
-  /* Set topics parameter from checkboxes*/
   record_topics_.clear();
 
+  /* Set topics parameter from configure file */
+  std::vector<std::string>::iterator ite = conf_topics.begin();
+  while( ite != conf_topics.end() )
+  {
+    record_topics_.push_back(*ite);
+    ite++;
+  }
+
+  /* Set topics parameter from checkboxes */
   QList<QCheckBox *> list_checkboxes = ui->scrollAreaWidgetContents->findChildren<QCheckBox *>();
   for (int i = 0; i < list_checkboxes.size(); ++i) {
-      if (list_checkboxes.at(i)->isChecked())
+      if ((list_checkboxes.at(i)->isChecked()) &&
+          ((std::find(conf_topics.begin(), conf_topics.end(), list_checkboxes.at(i)->text().toStdString()) == conf_topics.end())))
       {
         record_topics_.push_back(list_checkboxes.at(i)->text().toStdString());
       }
   }
 
-  std::vector<std::string>::iterator ite = record_topics_.begin();
+  ite = record_topics_.begin();
   while( ite != record_topics_.end() )
   {
     recoParam.topics.push_back(*ite);
@@ -145,6 +158,7 @@ void Autoware_Rosbag_Plugin::on_button_record_start_clicked()
   ui->button_record_save->setDisabled(true);
   ui->button_record_stop->setEnabled(true);
   ui->button_record_start->setDisabled(true);
+  ui->button_record_configure->setDisabled(true);
 }
 
 int Autoware_Rosbag_Plugin::recordReq( RecordParam &recoParam )
@@ -247,6 +261,7 @@ void Autoware_Rosbag_Plugin::on_button_record_stop_clicked()
   ui->button_record_start->setEnabled(true);
   ui->button_record_save->setEnabled(true);
   ui->button_record_stop->setDisabled(true);
+  ui->button_record_configure->setEnabled(true);
   record_status = 0;
 
   ros::Duration record_time_reset_ = ros::Duration(0);
@@ -308,4 +323,58 @@ void Autoware_Rosbag_Plugin::on_botton_topic_refresh_clicked()
   }
 
   ui->scrollAreaWidgetContents->setLayout(lay);
+}
+
+void Autoware_Rosbag_Plugin::on_button_record_configure_clicked()
+{
+  /* open dialog */
+  QString configureInfo =
+      QFileDialog::getOpenFileName(
+              this,
+              tr("path of record configure file"),
+              DEFAULT_CONFIGURE_PATH);
+
+  if( ! configureInfo.isEmpty() )
+  {
+    QString filepath, filename, strTemp;
+
+    strTemp = configureInfo;
+    int idx = strTemp.lastIndexOf('/');
+
+    if( idx != -1 )
+    {
+      filepath = strTemp.left(idx+1);
+      filename = strTemp.remove(0, idx+1);
+    }
+    else
+    {
+      ROS_ERROR("Invalid Path for configure file!!");
+      return;
+    }
+
+    idx = filename.lastIndexOf(".yaml");
+    if(idx == -1)
+    {
+      ROS_ERROR("Need .yaml file!!");
+    }
+
+    record_filepath_ = filepath.toStdString();
+    ui->edit_record_configure->setText(filename);
+
+    /* read configure file */
+    YAML::Node conf = YAML::LoadFile(filename.toStdString());
+    conf_topics = conf["topics"].as<std::vector<std::string> >();
+//    std::vector<std::string>::iterator ite = conf_topics.begin();
+//    while( ite != conf_topics.end() )
+//    {
+//      std::cout << (*ite) << std::endl;
+//      ite++;
+//    }
+
+  }
+
+//  // how to read data
+//  int iw = lconf["image_width"].as<int>();
+//  std::string model = lconf["distortion_model"].as<std::string>();
+//  std::vector<double> distdata = lconf["distortion_coefficients"]["data"].as<std::vector<double>>();
 }

@@ -72,10 +72,12 @@ protected Q_SLOTS:
     void on_button_record_stop_clicked();
     void timeShow();
     void on_botton_topic_refresh_clicked();
+    void on_button_record_configure_clicked();
 
 private:
 
     static const QString DEFAULT_SAVE_PATH;
+    static const QString DEFAULT_CONFIGURE_PATH;
     static const int     TIMER_FREQ;
 
     Ui::Autoware_Rosbag_Plugin *ui;

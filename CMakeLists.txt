@@ -110,6 +110,7 @@ target_link_libraries(offline_test
 #    ${PROJECT_NAME}
     ${QT_LIBRARIES}
     ${catkin_LIBRARIES}
+    yaml-cpp
     )
 
 
@@ -118,6 +119,7 @@ target_link_libraries( ${PROJECT_NAME}
    ${QT_LIBRARIES}
    ${catkin_LIBRARIES}
    ${Boost_LIBRARIES}
+   yaml-cpp
    rosbag
 )
 
