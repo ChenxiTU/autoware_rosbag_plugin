@@ -89,6 +89,7 @@ private:
     bool record_status;
 
     ros::Time record_time_start_;
+    std::vector<std::string> conf_topics_;
 };
 
 #endif

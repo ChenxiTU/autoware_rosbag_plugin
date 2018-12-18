@@ -37,8 +37,6 @@ const QString Autoware_Rosbag_Plugin::DEFAULT_SAVE_PATH = "/home/user/";
 const QString Autoware_Rosbag_Plugin::DEFAULT_CONFIGURE_PATH = "/home/user/";
 const int     Autoware_Rosbag_Plugin::TIMER_FREQ     = 1000;
 
-std::vector<string> conf_topics;
-
 Autoware_Rosbag_Plugin::Autoware_Rosbag_Plugin(QWidget *parent) :
     rviz::Panel(parent),
     ui(new Ui::Autoware_Rosbag_Plugin)
@@ -122,8 +120,8 @@ void Autoware_Rosbag_Plugin::on_button_record_start_clicked()
   record_topics_.clear();
 
   /* Set topics parameter from configure file */
-  std::vector<std::string>::iterator ite = conf_topics.begin();
-  while( ite != conf_topics.end() )
+  std::vector<std::string>::iterator ite = conf_topics_.begin();
+  while( ite != conf_topics_.end() )
   {
     record_topics_.push_back(*ite);
     ite++;
@@ -133,7 +131,7 @@ void Autoware_Rosbag_Plugin::on_button_record_start_clicked()
   QList<QCheckBox *> list_checkboxes = ui->scrollAreaWidgetContents->findChildren<QCheckBox *>();
   for (int i = 0; i < list_checkboxes.size(); ++i) {
       if ((list_checkboxes.at(i)->isChecked()) &&
-          ((std::find(conf_topics.begin(), conf_topics.end(), list_checkboxes.at(i)->text().toStdString()) == conf_topics.end())))
+          ((std::find(conf_topics_.begin(), conf_topics_.end(), list_checkboxes.at(i)->text().toStdString()) == conf_topics_.end())))
       {
         record_topics_.push_back(list_checkboxes.at(i)->text().toStdString());
       }
@@ -241,7 +239,7 @@ int Autoware_Rosbag_Plugin::doRecord( rosbag_control::RecorderOptions &opt )
 
   if( recorder_->start() == 0 )
   {
-    ROS_INFO("Error");
+//    ROS_INFO("Start now!!!");
   }
   else
   {
@@ -316,7 +314,7 @@ void Autoware_Rosbag_Plugin::on_botton_topic_refresh_clicked()
   for (ros::master::V_TopicInfo::iterator it = master_topics.begin() ; it != master_topics.end(); it++) {
     const ros::master::TopicInfo& info = *it;
     QCheckBox *dynamic = new QCheckBox(QString::fromStdString(info.name));
-    dynamic->setChecked (true);
+    dynamic->setChecked (false);
     lay->addWidget(dynamic);
     topic_num++;
 
@@ -361,20 +359,11 @@ void Autoware_Rosbag_Plugin::on_button_record_configure_clicked()
     record_filepath_ = filepath.toStdString();
     ui->edit_record_configure->setText(filename);
 
+    conf_topics_.clear();
+
     /* read configure file */
     YAML::Node conf = YAML::LoadFile(filename.toStdString());
-    conf_topics = conf["topics"].as<std::vector<std::string> >();
-//    std::vector<std::string>::iterator ite = conf_topics.begin();
-//    while( ite != conf_topics.end() )
-//    {
-//      std::cout << (*ite) << std::endl;
-//      ite++;
-//    }
-
+    conf_topics_ = conf["topics"].as<std::vector<std::string> >();
   }
-
-//  // how to read data
-//  int iw = lconf["image_width"].as<int>();
-//  std::string model = lconf["distortion_model"].as<std::string>();
-//  std::vector<double> distdata = lconf["distortion_coefficients"]["data"].as<std::vector<double>>();
 }
+
