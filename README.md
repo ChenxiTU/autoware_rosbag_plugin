@@ -4,5 +4,5 @@ In development
 <label class="mdui-checkbox">
   <input type="checkbox"/>
   <i class="mdui-checkbox-icon"></i>
-  默认不选中
+  Test
 </label>
