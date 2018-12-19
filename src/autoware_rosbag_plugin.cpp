@@ -33,7 +33,8 @@
 
 using namespace std;
 
-
+const QString Autoware_Rosbag_Plugin::DEFAULT_SAVE_PATH = "/home/user/";
+const QString Autoware_Rosbag_Plugin::DEFAULT_CONFIGURE_PATH = "/home/user/";
 const int     Autoware_Rosbag_Plugin::TIMER_FREQ     = 1000;
 
 Autoware_Rosbag_Plugin::Autoware_Rosbag_Plugin(QWidget *parent) :
@@ -75,7 +76,6 @@ void Autoware_Rosbag_Plugin::on_edit_record_filename_textChanged(const QString &
 
 void Autoware_Rosbag_Plugin::on_button_record_save_clicked()
 {
-  QString Autoware_Rosbag_Plugin::DEFAULT_SAVE_PATH = "/home/user/";
   /* open dialog */
   QString pathInfo =
       QFileDialog::getSaveFileName(
@@ -325,7 +325,6 @@ void Autoware_Rosbag_Plugin::on_botton_topic_refresh_clicked()
 
 void Autoware_Rosbag_Plugin::on_button_record_configure_clicked()
 {
-  const QString Autoware_Rosbag_Plugin::DEFAULT_CONFIGURE_PATH = "/home/user/";
   /* open dialog */
   QString configureInfo =
       QFileDialog::getOpenFileName(
@@ -351,22 +350,18 @@ void Autoware_Rosbag_Plugin::on_button_record_configure_clicked()
       return;
     }
 
-    std::cout << filename.toStdString() << std::endl;
-    std::cout << filepath.toStdString() << std::endl;
-
     idx = filename.lastIndexOf(".yaml");
     if(idx == -1)
     {
       ROS_ERROR("Need .yaml file!!");
     }
 
-    record_filepath_ = filepath.toStdString();
     ui->edit_record_configure->setText(filename);
 
     conf_topics_.clear();
 
     /* read configure file */
-    YAML::Node conf = YAML::LoadFile(filename.toStdString());
+    YAML::Node conf = YAML::LoadFile(filepath.toStdString() + filename.toStdString());
     conf_topics_ = conf["topics"].as<std::vector<std::string> >();
   }
 }
