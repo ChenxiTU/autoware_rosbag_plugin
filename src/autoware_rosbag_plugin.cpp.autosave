@@ -162,10 +162,6 @@ void Autoware_Rosbag_Plugin::on_button_record_start_clicked()
 int Autoware_Rosbag_Plugin::recordReq( RecordParam &recoParam )
 {
   recorder_opts_.reset( new rosbag_controller::RecorderOptions() );
-  if (recoParam.filename.empty())
-  {
-    recorder_opts_->append_date = true;
-  }
   recorder_opts_->prefix = recoParam.filename;
   recorder_opts_->append_date = false;
 

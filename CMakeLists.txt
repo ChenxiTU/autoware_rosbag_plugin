@@ -37,9 +37,7 @@ add_definitions(${QT_DEFINITIONS})
 set(CMAKE_CXX_FLAGS "-Wall -g -O0")
 
 set(SOURCE_FILES
-  src/core/player.cpp
   src/core/recorder.cpp
-  src/core/time_translator.cpp
 )
 
 set(UI_FILES
@@ -101,17 +99,17 @@ add_library( ${PROJECT_NAME}
   ${QT_RESOURCES_CPP}
 )
 
-add_executable(offline_test src/offline_test   ${QT_MOC_SRC_HPP}
-    ${QT_FORMS_HPP}
-    ${SOURCE_FILES}
-    ${UI_FILES}
-    ${QT_RESOURCES_CPP})
-target_link_libraries(offline_test
+#add_executable(offline_test src/offline_test   ${QT_MOC_SRC_HPP}
+#    ${QT_FORMS_HPP}
+#    ${SOURCE_FILES}
+#    ${UI_FILES}
+#    ${QT_RESOURCES_CPP})
+#target_link_libraries(offline_test
 #    ${PROJECT_NAME}
-    ${QT_LIBRARIES}
-    ${catkin_LIBRARIES}
-    yaml-cpp
-    )
+#    ${QT_LIBRARIES}
+#    ${catkin_LIBRARIES}
+#    yaml-cpp
+#    )
 
 
 ## Specify libraries to link a library or executable target against
