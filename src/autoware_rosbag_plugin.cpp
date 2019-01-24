@@ -1,4 +1,20 @@
 /*
+ * Copyright 2015-2019 Autoware Foundation. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
  rviz Rosbag recording plugin for opensource autonomous driving platform Autoware
 
  Chenxi TU
@@ -162,10 +178,6 @@ void Autoware_Rosbag_Plugin::on_button_record_start_clicked()
 int Autoware_Rosbag_Plugin::recordReq( RecordParam &recoParam )
 {
   recorder_opts_.reset( new rosbag_controller::RecorderOptions() );
-  if (recoParam.filename.empty())
-  {
-    recorder_opts_->append_date = true;
-  }
   recorder_opts_->prefix = recoParam.filename;
   recorder_opts_->append_date = false;
 
@@ -305,17 +317,26 @@ void Autoware_Rosbag_Plugin::on_botton_topic_refresh_clicked()
     delete layout;
   }
 
-  QVBoxLayout *lay = new QVBoxLayout(this);
+  QVBoxLayout *lay = new QVBoxLayout(ui->scrollAreaWidgetContents);
   int topic_num = 0;
 
   /* Scan current topics and build checkboxs */
+  std::vector<std::string> current_topic;
   for (ros::master::V_TopicInfo::iterator it = master_topics.begin() ; it != master_topics.end(); it++) {
     const ros::master::TopicInfo& info = *it;
-    QCheckBox *dynamic = new QCheckBox(QString::fromStdString(info.name));
+    current_topic.push_back(info.name);
+  }
+
+  std::sort(current_topic.begin(),current_topic.end());
+
+  std::vector<std::string>::iterator ite = current_topic.begin();
+  while( ite != current_topic.end() )
+  {
+    QCheckBox *dynamic = new QCheckBox(QString::fromStdString(*ite));
     dynamic->setChecked (false);
     lay->addWidget(dynamic);
     topic_num++;
-
+    ite++;
   }
 
   ui->scrollAreaWidgetContents->setLayout(lay);
@@ -352,6 +373,7 @@ void Autoware_Rosbag_Plugin::on_button_record_configure_clicked()
     if(idx == -1)
     {
       ROS_ERROR("Need .yaml file!!");
+      return;
     }
 
     ui->edit_record_configure->setText(filename);
@@ -359,8 +381,15 @@ void Autoware_Rosbag_Plugin::on_button_record_configure_clicked()
     conf_topics_.clear();
 
     /* read configure file */
-    YAML::Node conf = YAML::LoadFile(filepath.toStdString() + filename.toStdString());
-    conf_topics_ = conf["topics"].as<std::vector<std::string> >();
+    try
+    {
+      YAML::Node conf = YAML::LoadFile(filepath.toStdString() + filename.toStdString());
+      conf_topics_ = conf["topics"].as<std::vector<std::string> >();
+    }
+    catch(YAML::Exception exception)
+    {
+      ROS_ERROR(exception.what());
+    }
   }
 }
 
